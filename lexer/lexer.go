@@ -36,7 +36,15 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case ascii.ASSIGN:
-		tok = newToken(token.ASSIGN, l.ch)
+		if l.peekChar() == ascii.ASSIGN {
+			ch := l.ch
+			l.readChar()
+			nextChar := l.ch
+			literal := string(ch) + string(nextChar)
+			tok = token.Token{Type: token.EQ, Literal: literal}
+		} else {
+			tok = newToken(token.ASSIGN, l.ch)
+		}
 	case ascii.SEMICOLON:
 		tok = newToken(token.SEMICOLON, l.ch)
 	case ascii.LPAREN:
@@ -51,6 +59,27 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.ch)
 	case ascii.RBRACE:
 		tok = newToken(token.RBRACE, l.ch)
+	case ascii.MINUS:
+		tok = newToken(token.MINUS, l.ch)
+	case ascii.BANG:
+		if l.peekChar() == ascii.ASSIGN {
+			ch := l.ch
+			l.readChar()
+			nextChar := l.ch
+			literal := string(ch) + string(nextChar)
+			tok = token.Token{Type: token.NOT_EQ, Literal: literal}
+		} else {
+			tok = newToken(token.BANG, l.ch)
+		}
+
+	case ascii.ASTERISK:
+		tok = newToken(token.ASTERISK, l.ch)
+	case ascii.SLASH:
+		tok = newToken(token.SLASH, l.ch)
+	case ascii.LT:
+		tok = newToken(token.LT, l.ch)
+	case ascii.GT:
+		tok = newToken(token.GT, l.ch)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -59,11 +88,11 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
-    } else if isDigit(l.ch) {
-      tok.Type = token.INT
-      tok.Literal = l.readNumber()
-      return tok
-    }else {
+		} else if isDigit(l.ch) {
+			tok.Type = token.INT
+			tok.Literal = l.readNumber()
+			return tok
+		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
 		}
 	}
@@ -109,5 +138,13 @@ func isDigit(ch byte) bool {
 func (l *Lexer) skipWhitespace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
+	}
+}
+
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
 	}
 }

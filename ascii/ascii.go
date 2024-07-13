@@ -7,6 +7,12 @@ const (
 	RPAREN    = 41
 	COMMA     = 44
 	PLUS      = 43
+	MINUS     = 45
 	LBRACE    = 123
 	RBRACE    = 125
+	BANG      = 33
+	ASTERISK  = 42
+	SLASH     = 47
+	LT        = 60
+	GT        = 62
 )
